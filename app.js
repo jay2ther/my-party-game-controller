@@ -2,6 +2,7 @@ let ws;
 let mySessionName = "";
 let myRoomCode = "";
 let autoReconnectInterval;
+let clientTimerInterval; // 🔥 Keeps track of the local phone countdown loop
 
 // ⚠️ SWAP THIS LINK WITH YOUR LIVE RENDER SUBDOMAIN CAPTURED IN PHASE 1
 const CLOUD_URL = "wss://my-party-relay-server.onrender.com"; 
@@ -24,7 +25,7 @@ function connectToRelayNetwork() {
         let serverData;
         try { serverData = JSON.parse(event.data); } catch (e) { return; }
 
-        // 🔥 THE FIX: If the message came from the Godot host, unwrap the inner payload
+        // If the message came from the Godot host, unwrap the inner payload
         let data = serverData;
         if (serverData.action === "update_client" && serverData.payload) {
             data = serverData.payload;
@@ -37,7 +38,6 @@ function connectToRelayNetwork() {
             document.getElementById('hudPlayerName').innerText = mySessionName.toUpperCase();
             document.getElementById('hudStatValue').innerText = "Score: " + (data.currency || 0);
             
-            // Default blank state waiting room layout
             renderBlankCanvas({
                 type: "waiting",
                 prompt: "Welcome to the Lobby!",
@@ -61,8 +61,8 @@ function connectToRelayNetwork() {
         document.getElementById('universalHUD').style.display = 'none';
         document.getElementById('dynamicCanvas').innerHTML = "";
         document.getElementById('disconnectAlert').style.display = 'block';
+        clearInterval(clientTimerInterval);
         
-        // Polling loop to recover broken links
         clearInterval(autoReconnectInterval);
         autoReconnectInterval = setTimeout(connectToRelayNetwork, 3000);
     };
@@ -72,7 +72,10 @@ function connectToRelayNetwork() {
 function renderBlankCanvas(payload) {
     const canvas = document.getElementById('dynamicCanvas');
     if (!canvas) return;
-    canvas.innerHTML = ""; // Clear old layout traces instantly
+    
+    // 🔥 ALWAYS wipe out old running timers the millisecond a layout swaps
+    canvas.innerHTML = ""; 
+    clearInterval(clientTimerInterval);
     
     if (!payload) return;
 
@@ -84,7 +87,31 @@ function renderBlankCanvas(payload) {
         canvas.appendChild(headerText);
     }
 
-    // 2. Element Processing Branch
+    // 🔥 2. DYNAMIC TIMER INJECTION MODULE
+    if (payload.time_limit && payload.time_limit > 0) {
+        let timeLeft = payload.time_limit;
+        
+        const timerVisualEl = document.createElement('div');
+        timerVisualEl.style.fontSize = "26px";
+        timerVisualEl.style.fontWeight = "bold";
+        timerVisualEl.style.color = "#ff3d00"; // Alarm Red
+        timerVisualEl.style.margin = "10px 0 25px 0";
+        timerVisualEl.innerText = "⏱️ " + timeLeft + "s REMAINING";
+        canvas.appendChild(timerVisualEl);
+        
+        // Run a local isolated secondary loop down on the phone hardware thread
+        clientTimerInterval = setInterval(() => {
+            timeLeft--;
+            if (timeLeft <= 0) {
+                timerVisualEl.innerText = "⏱️ HATCH CLOSING!";
+                clearInterval(clientTimerInterval);
+            } else {
+                timerVisualEl.innerText = "⏱️ " + timeLeft + "s REMAINING";
+            }
+        }, 1000);
+    }
+
+    // 3. Element Processing Branch
     switch (payload.type) {
         case "waiting":
             const statusEl = document.createElement('p');
