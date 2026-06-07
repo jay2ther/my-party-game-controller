@@ -21,8 +21,14 @@ function connectToRelayNetwork() {
     };
 
     ws.onmessage = (event) => {
-        let data;
-        try { data = JSON.parse(event.data); } catch (e) { return; }
+        let serverData;
+        try { serverData = JSON.parse(event.data); } catch (e) { return; }
+
+        // 🔥 THE FIX: If the message came from the Godot host, unwrap the inner payload
+        let data = serverData;
+        if (serverData.action === "update_client" && serverData.payload) {
+            data = serverData.payload;
+        }
 
         // Router branch 1: Initial user profile mapping
         if (data.action === "profile_loaded") {
@@ -44,7 +50,7 @@ function connectToRelayNetwork() {
             document.getElementById('hudStatValue').innerText = "Score: " + data.currency;
         }
 
-        // Router branch 3: THE CORE INJECTOR (Godot commands what buttons spawn right here!)
+        // Router branch 3: THE CORE INJECTOR
         else if (data.action === "update_layout") {
             renderBlankCanvas(data.payload);
         }
@@ -101,17 +107,13 @@ function renderBlankCanvas(payload) {
                 const textValue = document.getElementById('canvasTextInputField').value;
                 if (!textValue.trim()) return;
                 
-                // Ship payload string back up to Godot Host scene loop
                 sendInputPayload({ value: textValue });
-                
-                // Advance client right away to loading layout to protect against double entries
                 renderBlankCanvas({ type: "waiting", prompt: "Entry Logged!", message: "Waiting for other players to submit..." });
             };
             canvas.appendChild(submitBtn);
             break;
 
         case "choices":
-            // Spawns stacks of button options dynamically passed down by Godot
             if (payload.options && Array.isArray(payload.options)) {
                 payload.options.forEach((choiceString) => {
                     const choiceBtn = document.createElement('button');
