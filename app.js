@@ -107,9 +107,16 @@ function sendInputToHost(actionName) {
     }
 }
 
-// Set up mobile action listeners
-btnLeft.addEventListener('pointerdown', () => sendInputToHost('left'));
-btnRight.addEventListener('pointerdown', () => sendInputToHost('right'));
+// Track button presses and releases to avoid infinite movement
+btnLeft.addEventListener('pointerdown', () => sendInputToHost('left_down'));
+btnLeft.addEventListener('pointerup', () => sendInputToHost('left_up'));
+btnLeft.addEventListener('pointerleave', () => sendInputToHost('left_up'));
+
+btnRight.addEventListener('pointerdown', () => sendInputToHost('right_down'));
+btnRight.addEventListener('pointerup', () => sendInputToHost('right_up'));
+btnRight.addEventListener('pointerleave', () => sendInputToHost('right_up'));
+
+// Jumps only need a press event, so pointerdown is sufficient here
 btnActionA.addEventListener('pointerdown', () => sendInputToHost('action_a'));
 
 leaveBtn.addEventListener('click', () => {
