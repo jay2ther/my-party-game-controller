@@ -1,6 +1,6 @@
 // Detect if running on GitHub Pages (HTTPS) or local test files
 const isSecure = window.location.protocol === 'https:';
-const serverHost = isSecure ? 'wss://your-render-app-url.onrender.com' : 'ws://localhost:10000';
+const serverHost = isSecure ? 'wss://my-party-relay-server.onrender.com' : 'ws://localhost:10000';
 
 let socket = null;
 let clientId = "";
