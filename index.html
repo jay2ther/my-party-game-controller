@@ -28,14 +28,14 @@
             padding: 20px;
             text-align: center;
         }
-        /* Screens */
+        /* Screen Navigation states */
         .screen {
             display: none;
         }
         .screen.active {
             display: block;
         }
-        /* Inputs & Buttons */
+        /* Form inputs & styling */
         input {
             width: 100%;
             padding: 15px;
@@ -70,7 +70,7 @@
             margin-top: 10px;
             font-size: 14px;
         }
-        /* Gamepad Grid Layout */
+        /* Mobile Gamepad Grid Layout */
         .gamepad {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -98,26 +98,34 @@
             <div id="error-display" class="error-message"></div>
         </div>
 
-<!-- Controller Gamepad Screen -->
+        <!-- Controller Gamepad Screen -->
         <div id="gamepad-screen" class="screen">
             <h3 id="player-display">Connecting...</h3>
             
-            <!-- Gyro Toggle Button -->
+            <!-- Gyro / Tilt Toggle Button -->
             <button id="btn-gyro" style="background-color: #fbc531; box-shadow: 0 4px #e1b12c; color: #1a1a2e; margin-bottom: 20px;">
                 ENABLE TILT CONTROL
             </button>
             
-            <!-- Instructions when tilt is active -->
+            <!-- Instructions visible only during Tilt/Gyro mode -->
             <div id="tilt-instructions" style="display: none; padding: 20px; background-color: #16213e; border-radius: 8px; margin: 15px 0; border: 1px dashed #e94560;">
                 <p style="margin: 0; color: #fbc531; font-weight: bold;">TILT PHONE TO STEER</p>
-                <p style="margin: 5px 0 0 0; font-size: 12px; color: #ccc;">Keep Action Button tapped to jump</p>
+                <p style="margin: 5px 0 0 0; font-size: 12px; color: #ccc;">Tap/Hold Action button to jump</p>
             </div>
 
+            <!-- Main Button Grid -->
             <div class="gamepad" id="gamepad-buttons">
-                <!-- touch-action: none is applied to keep mobile browsers from hijacking inputs -->
                 <button class="btn-action" id="btn-left" style="touch-action: none;">LEFT</button>
                 <button class="btn-action" id="btn-right" style="touch-action: none;">RIGHT</button>
                 <button class="btn-action" id="btn-action-a" style="grid-column: span 2; background-color: #0984e3; box-shadow: 0 4px #0764ad; touch-action: none;">ACTION</button>
             </div>
+            
+            <!-- Disconnect/Reset Room Button -->
             <button id="leave-btn" style="background-color: #2d3436; box-shadow: 0 4px #1b2021; margin-top: 30px;">LEAVE ROOM</button>
         </div>
+    </div>
+
+    <!-- Inject mobile application logical script -->
+    <script src="app.js"></script>
+</body>
+</html>
